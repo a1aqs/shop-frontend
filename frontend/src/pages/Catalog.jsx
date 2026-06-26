@@ -13,6 +13,41 @@ const fallbackImages = {
   4: gamingImg,
 };
 
+const demoProducts = [
+  {
+    id: 1,
+    name: "iPhone 14",
+    description: "Смартфон Apple iPhone 14, отличная камера и стильный дизайн.",
+    price: 79999,
+    amount: 12,
+    image: iphoneImg,
+  },
+  {
+    id: 2,
+    name: "MacBook Pro",
+    description: "Ноутбук Apple MacBook Pro для работы и творчества.",
+    price: 169999,
+    amount: 5,
+    image: macImg,
+  },
+  {
+    id: 3,
+    name: "Sony Headphones",
+    description: "Наушники Sony с шумоподавлением для музыки и звонков.",
+    price: 12999,
+    amount: 8,
+    image: sonyImg,
+  },
+  {
+    id: 4,
+    name: "Gaming PC",
+    description: "Мощный игровой ПК с высокой производительностью.",
+    price: 139999,
+    amount: 3,
+    image: gamingImg,
+  },
+];
+
 export default function Catalog() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,9 +69,15 @@ export default function Catalog() {
         }));
         setProducts(normalized);
       })
-      .catch(() => {
+      .catch((err) => {
         if (!mounted) return;
-        setError("Не удалось загрузить товары. Попробуйте позже.");
+        const status = err?.response?.status;
+        if (status === 401 || status === 403) {
+          setProducts(demoProducts);
+          setError("Каталог доступен в демонстрационном режиме. Войдите в систему, чтобы увидеть актуальные товары.");
+        } else {
+          setError("Не удалось загрузить товары. Попробуйте позже.");
+        }
       })
       .finally(() => {
         if (mounted) setIsLoading(false);
