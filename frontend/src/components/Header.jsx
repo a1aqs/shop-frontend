@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
+import { UserContext } from "../context/UserContext";
 
 export default function Header() {
   const { cart } = useContext(CartContext);
+  const { user, logout } = useContext(UserContext);
 
   return (
     <header className="header">
@@ -13,7 +15,13 @@ export default function Header() {
 
       <nav>
         <Link to="/">Главная</Link>
-        <Link to="/auth">Войти</Link>
+        {user?.isGuest ? (
+          <Link to="/auth">Войти</Link>
+        ) : (
+          <button className="link-button" onClick={logout}>
+            Выйти
+          </button>
+        )}
         <Link to="/profile">Профиль</Link>
         <Link to="/cart">Корзина ({cart.length})</Link>
       </nav>

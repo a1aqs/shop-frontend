@@ -1,0 +1,461 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:41303
+  description: Generated server url
+paths:
+  /api/products/{id}:
+    put:
+      tags:
+      - product-service-controller
+      operationId: updateProductInfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRq"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProductDto"
+    delete:
+      tags:
+      - product-service-controller
+      operationId: deleteProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/register:
+    post:
+      tags:
+      - user-service-controller
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRq"
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/products:
+    get:
+      tags:
+      - product-service-controller
+      operationId: getProductList
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductDto"
+    post:
+      tags:
+      - product-service-controller
+      operationId: createProduct
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: object
+              properties:
+                productInfo:
+                  $ref: "#/components/schemas/CreateProductRq"
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+              - productInfo
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                productInfo:
+                  $ref: "#/components/schemas/CreateProductRq"
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+              - productInfo
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProductDto"
+  /api/orders:
+    post:
+      tags:
+      - order-service-controller
+      operationId: createOrder
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRq"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+  /api/login:
+    post:
+      tags:
+      - user-service-controller
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginUserRq"
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/orders/{id}/status:
+    patch:
+      tags:
+      - order-service-controller
+      operationId: updateOrderStatus
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: status
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+  /api/personal/{id}:
+    get:
+      tags:
+      - user-service-controller
+      operationId: getUserInfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoginUserResponse"
+  /api/orders/{id}:
+    get:
+      tags:
+      - order-service-controller
+      operationId: getOrderList
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+  /api/images/{id}:
+    get:
+      tags:
+      - image-service-controller
+      operationId: downloadImage
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+  /api/admin/users:
+    get:
+      tags:
+      - admin-panel-controller
+      operationId: getFullUserList
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserDto"
+  /api/admin/orders:
+    get:
+      tags:
+      - admin-panel-controller
+      operationId: getFullOrderList
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+  /api/admin/:
+    get:
+      tags:
+      - admin-panel-controller
+      operationId: getAdminPanel
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    CreateProductRq:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        amount:
+          type: integer
+          format: int32
+        cost:
+          type: number
+        type:
+          type: string
+    ImageDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        originalName:
+          type: string
+        name:
+          type: string
+        size:
+          type: integer
+          format: int64
+        contentType:
+          type: string
+        preview:
+          type: boolean
+    ProductDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        amount:
+          type: integer
+          format: int32
+        cost:
+          type: number
+        type:
+          type: string
+        imageInfos:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImageDto"
+    RegisterUserRq:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    CreateOrderRq:
+      type: object
+      properties:
+        clientId:
+          type: integer
+          format: int64
+        productInfos:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductInfoDto"
+    ProductInfoDto:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+        productAmount:
+          type: integer
+          format: int32
+    OrderDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - CREATED
+          - CANCELLED
+          - PROCESSING
+          - DELIVERY
+          - FINISHED
+        totalCost:
+          type: number
+        clientId:
+          type: integer
+          format: int64
+    LoginUserRq:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    LoginUserResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserDto"
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
