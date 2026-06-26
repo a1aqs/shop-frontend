@@ -1,15 +1,9 @@
 import axios from "axios";
 
 const apiGatewayBaseUrl = import.meta.env.VITE_API_GATEWAY || "http://localhost:41303";
-const orderServiceBaseUrl = import.meta.env.VITE_ORDER_SERVICE || "http://localhost:41301";
 
 const gatewayApi = axios.create({
   baseURL: apiGatewayBaseUrl,
-  headers: { "Content-Type": "application/json" },
-});
-
-const orderApi = axios.create({
-  baseURL: orderServiceBaseUrl,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -42,22 +36,13 @@ gatewayApi.interceptors.request.use((config) => {
   return config;
 });
 
-orderApi.interceptors.request.use((config) => {
-  const auth = getStoredAuth();
-  if (auth) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = auth;
-  }
-  return config;
-});
-
 export function getProductImageUrl(imageId) {
   if (!imageId) return null;
-  return `${orderServiceBaseUrl}/images/${imageId}`;
+  return `${apiGatewayBaseUrl}/api/images/${imageId}`;
 }
 
 export async function fetchProducts() {
-  const response = await orderApi.get("/products");
+  const response = await gatewayApi.get("/api/products");
   return response.data;
 }
 
@@ -65,7 +50,7 @@ export async function loginUser(email, password) {
   const auth = buildBasicHeader(email, password);
   const response = await gatewayApi.post(
     "/api/login",
-    null,
+    { email, password },
     {
       headers: {
         Authorization: auth,
@@ -79,7 +64,7 @@ export async function registerUser(name, email, password) {
   const auth = buildBasicHeader(email, password);
   const response = await gatewayApi.post(
     "/api/register",
-    { name },
+    { name, email, password },
     {
       headers: {
         Authorization: auth,
@@ -89,13 +74,16 @@ export async function registerUser(name, email, password) {
   return response.data;
 }
 
-export async function fetchOrders() {
-  const response = await orderApi.get("/orders");
+export async function fetchOrders(userId) {
+  if (!userId) {
+    return [];
+  }
+  const response = await gatewayApi.get(`/api/orders/${userId}`);
   return response.data;
 }
 
 export async function createOrder(clientId, productInfos) {
-  const response = await orderApi.post("/orders", {
+  const response = await gatewayApi.post("/api/orders", {
     clientId,
     productInfos,
   });

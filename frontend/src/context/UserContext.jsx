@@ -109,8 +109,8 @@ export function UserProvider({ children }) {
     if (!user?.id) {
       return [];
     }
-    const orders = await apiFetchOrders();
-    return orders.filter((order) => order.clientId === user.id);
+    const orders = await apiFetchOrders(user.id);
+    return orders;
   }, [user?.id]);
 
   return (
