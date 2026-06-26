@@ -68,7 +68,6 @@ export function UserProvider({ children }) {
     try {
       const data = await loginUser(email, password);
       const userPayload = buildUser(data, null, email);
-      // ensure token contains Basic header so interceptor can attach it
       try {
         const basic = typeof btoa === "function" ? `Basic ${btoa(`${email}:${password}`)}` : `Basic ${Buffer.from(`${email}:${password}`).toString("base64")}`;
         userPayload.token = data?.token ?? basic;

@@ -8,12 +8,10 @@ const gatewayApi = axios.create({
 });
 
 function buildBasicHeader(email, password) {
-  // Browser environment: use btoa to base64-encode credentials
   try {
     const token = btoa(`${email}:${password}`);
     return `Basic ${token}`;
   } catch (e) {
-    // fallback for environments without btoa
     return `Basic ${Buffer.from(`${email}:${password}`).toString("base64")}`;
   }
 }
@@ -26,7 +24,6 @@ function getStoredAuth() {
   }
 }
 
-// attach Authorization header (Basic) from localStorage for all requests
 gatewayApi.interceptors.request.use((config) => {
   const auth = getStoredAuth();
   if (auth) {
