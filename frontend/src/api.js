@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiGatewayBaseUrl = import.meta.env.VITE_API_GATEWAY || "http://localhost:41303";
+const apiGatewayBaseUrl = import.meta.env.VITE_API_GATEWAY || "/api";
 
 const gatewayApi = axios.create({
   baseURL: apiGatewayBaseUrl,
@@ -35,7 +35,7 @@ gatewayApi.interceptors.request.use((config) => {
 
 export function getProductImageUrl(imageId) {
   if (!imageId) return null;
-  return `${apiGatewayBaseUrl}/api/images/${imageId}`;
+  return `/api/images/${imageId}`;
 }
 
 export async function fetchProducts() {
