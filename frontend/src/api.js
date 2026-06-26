@@ -13,21 +13,43 @@ const orderApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-function getToken() {
-  return localStorage.getItem("token");
+function buildBasicHeader(email, password) {
+  // Browser environment: use btoa to base64-encode credentials
+  try {
+    const token = btoa(`${email}:${password}`);
+    return `Basic ${token}`;
+  } catch (e) {
+    // fallback for environments without btoa
+    return `Basic ${Buffer.from(`${email}:${password}`).toString("base64")}`;
+  }
 }
 
-function addAuthHeader(config) {
-  const token = getToken();
-  if (token) {
+function getStoredAuth() {
+  try {
+    return localStorage.getItem("token");
+  } catch (e) {
+    return null;
+  }
+}
+
+// attach Authorization header (Basic) from localStorage for all requests
+gatewayApi.interceptors.request.use((config) => {
+  const auth = getStoredAuth();
+  if (auth) {
     config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = auth;
   }
   return config;
-}
+});
 
-gatewayApi.interceptors.request.use(addAuthHeader);
-orderApi.interceptors.request.use(addAuthHeader);
+orderApi.interceptors.request.use((config) => {
+  const auth = getStoredAuth();
+  if (auth) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = auth;
+  }
+  return config;
+});
 
 export function getProductImageUrl(imageId) {
   if (!imageId) return null;
@@ -40,12 +62,30 @@ export async function fetchProducts() {
 }
 
 export async function loginUser(email, password) {
-  const response = await gatewayApi.post("/api/login", { email, password });
+  const auth = buildBasicHeader(email, password);
+  const response = await gatewayApi.post(
+    "/api/login",
+    null,
+    {
+      headers: {
+        Authorization: auth,
+      },
+    }
+  );
   return response.data;
 }
 
 export async function registerUser(name, email, password) {
-  const response = await gatewayApi.post("/api/register", { name, email, password });
+  const auth = buildBasicHeader(email, password);
+  const response = await gatewayApi.post(
+    "/api/register",
+    { name },
+    {
+      headers: {
+        Authorization: auth,
+      },
+    }
+  );
   return response.data;
 }
 

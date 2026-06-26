@@ -65,17 +65,40 @@ export function UserProvider({ children }) {
   };
 
   const login = useCallback(async (email, password) => {
-    const data = await loginUser(email, password);
-    const userPayload = buildUser(data, null, email);
-    setUser(userPayload);
-    return userPayload;
+    try {
+      const data = await loginUser(email, password);
+      const userPayload = buildUser(data, null, email);
+      // ensure token contains Basic header so interceptor can attach it
+      try {
+        const basic = typeof btoa === "function" ? `Basic ${btoa(`${email}:${password}`)}` : `Basic ${Buffer.from(`${email}:${password}`).toString("base64")}`;
+        userPayload.token = data?.token ?? basic;
+      } catch (e) {
+        userPayload.token = data?.token ?? null;
+      }
+      setUser(userPayload);
+      return userPayload;
+    } catch (err) {
+      const message = err?.response?.data?.message || err?.message || "Ошибка входа";
+      throw new Error(message);
+    }
   }, []);
 
   const register = useCallback(async (name, email, password) => {
-    const data = await registerUser(name, email, password);
-    const userPayload = buildUser(data, name, email);
-    setUser(userPayload);
-    return userPayload;
+    try {
+      const data = await registerUser(name, email, password);
+      const userPayload = buildUser(data, name, email);
+      try {
+        const basic = typeof btoa === "function" ? `Basic ${btoa(`${email}:${password}`)}` : `Basic ${Buffer.from(`${email}:${password}`).toString("base64")}`;
+        userPayload.token = data?.token ?? basic;
+      } catch (e) {
+        userPayload.token = data?.token ?? null;
+      }
+      setUser(userPayload);
+      return userPayload;
+    } catch (err) {
+      const message = err?.response?.data?.message || err?.message || "Ошибка регистрации";
+      throw new Error(message);
+    }
   }, []);
 
   const logout = useCallback(() => {
